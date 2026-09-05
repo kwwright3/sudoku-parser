@@ -1,0 +1,22 @@
+{
+  "name": "sudoku-parser",
+  "version": "0.1.0",
+  "description": "Parse and validate sudoku boards from plain text with precise line/column error messages",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "sudoku",
+    "parser"
+  ],
+  "license": "MIT",
+  "author": "kwwright3",
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

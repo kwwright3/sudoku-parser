@@ -94,6 +94,19 @@ line 1, column 1 and line 1, column 3 both contain 5 in row 1
 and the source position of both cells) so a caller can build its own
 reporting instead of parsing the message text.
 
+- `solveSudoku(board: Board): Board | null` — fills in the empty cells by
+  backtracking, returning a new `Board` (same `positions`), or `null` if
+  no assignment satisfies the constraints. Does not check the givens for
+  internal conflicts first; run `validateBoard` beforehand if the input
+  isn't already trusted.
+
+```ts
+import { parseSudoku, solveSudoku, formatBoard } from 'sudoku-parser';
+
+const solved = solveSudoku(parseSudoku(text));
+if (solved) console.log(formatBoard(solved));
+```
+
 ## API
 
 - `parseSudoku(text: string): Board` — parses text into a 9x9 grid.
@@ -101,6 +114,8 @@ reporting instead of parsing the message text.
 - `validateBoard(board: Board): void` — checks for duplicate digits in
   any row, column, or box. Throws `SudokuValidationError` listing every
   conflict found (not just the first).
+- `solveSudoku(board: Board): Board | null` — solves the board by
+  backtracking, or returns `null` if it has no solution.
 - `formatBoard(board: Board): string` — renders a board back to the
   boxed text layout shown above.
 - `Board` — `{ cells: number[][], positions: CellPosition[][] }`, where
@@ -109,5 +124,6 @@ reporting instead of parsing the message text.
 
 ## Status
 
-Parsing and constraint validation are done. Solving is not implemented
-yet — see the roadmap in the repo for what's next.
+Parsing, constraint validation, and solving are done. Next up: a
+uniqueness checker (for puzzle generation) and support for alternate
+input formats.

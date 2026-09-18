@@ -1,6 +1,6 @@
 export { Board, validateBoard, formatBoard } from './board';
 export { parseSudoku } from './parse';
-export { solveSudoku } from './solve';
+export { solveSudoku, countSolutions, hasUniqueSolution } from './solve';
 export {
   CellPosition,
   CellConflict,

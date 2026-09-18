@@ -13,18 +13,19 @@ function countCandidates(used: number): number {
 }
 
 /**
- * Solves a board by backtracking, filling one cell at a time and always
- * choosing the empty cell with the fewest remaining candidates next (the
- * standard MRV heuristic). That ordering is what keeps this fast on
- * hard puzzles instead of degenerating into a near-exhaustive search.
+ * Shared backtracking core for solveSudoku and countSolutions. Explores
+ * complete assignments of the empty cells, always filling the cell with
+ * the fewest remaining candidates next (the standard MRV heuristic), and
+ * calls onSolution each time it reaches one. onSolution returns true to
+ * stop the search (a single solution is enough, or a caller-chosen limit
+ * has been reached) or false to keep looking for more.
  *
- * This does not check that the givens are internally consistent - call
+ * Does not check that the givens are internally consistent - call
  * validateBoard first if that matters. A board with conflicting givens
- * may still "solve" by ignoring the conflict, since a fixed cell is never
- * revisited. Returns null if no assignment of the empty cells satisfies
- * the row/column/box constraints.
+ * may still yield a "solution" that ignores the conflict, since a fixed
+ * cell is never revisited.
  */
-export function solveSudoku(board: Board): Board | null {
+function search(board: Board, onSolution: (cells: number[][]) => boolean): void {
   const cells = board.cells.map((row) => row.slice());
   const rowUsed = new Array<number>(9).fill(0);
   const colUsed = new Array<number>(9).fill(0);
@@ -49,7 +50,7 @@ export function solveSudoku(board: Board): Board | null {
   }
 
   function backtrack(startIndex: number): boolean {
-    if (startIndex === empties.length) return true;
+    if (startIndex === empties.length) return onSolution(cells);
 
     let bestIndex = startIndex;
     let bestUsed = 0;
@@ -96,7 +97,49 @@ export function solveSudoku(board: Board): Board | null {
     return false;
   }
 
-  if (!backtrack(0)) return null;
+  backtrack(0);
+}
 
-  return { cells, positions: board.positions };
+/**
+ * Solves a board by backtracking. Returns null if no assignment of the
+ * empty cells satisfies the row/column/box constraints.
+ */
+export function solveSudoku(board: Board): Board | null {
+  let solution: number[][] | null = null;
+
+  search(board, (cells) => {
+    solution = cells.map((row) => row.slice());
+    return true;
+  });
+
+  return solution ? { cells: solution, positions: board.positions } : null;
+}
+
+/**
+ * Counts distinct solutions, stopping as soon as `limit` is reached
+ * rather than exhausting the search space. Puzzle generators need to
+ * know "is this still unique" far more often than "exactly how many
+ * solutions does this have", and the former is much cheaper to answer:
+ * a non-unique board is usually caught after the second solution turns
+ * up, not after a full enumeration.
+ */
+export function countSolutions(board: Board, limit = 2): number {
+  let count = 0;
+
+  search(board, () => {
+    count += 1;
+    return count >= limit;
+  });
+
+  return count;
+}
+
+/**
+ * True if the board has exactly one solution. Does not check the givens
+ * for internal conflicts first; run validateBoard beforehand if the
+ * input isn't already trusted, since a board with conflicting givens can
+ * still resolve to a single (meaningless) completion.
+ */
+export function hasUniqueSolution(board: Board): boolean {
+  return countSolutions(board, 2) === 1;
 }

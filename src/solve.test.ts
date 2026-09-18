@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseSudoku } from './parse';
-import { solveSudoku } from './solve';
+import { solveSudoku, countSolutions, hasUniqueSolution } from './solve';
 
 const PUZZLE_TEXT = `
 53. .7. ...
@@ -79,4 +79,26 @@ test('returns the board unchanged when it is already fully solved', () => {
 test('returns null for a board with no valid completion', () => {
   const board = parseSudoku(UNSOLVABLE_TEXT);
   assert.equal(solveSudoku(board), null);
+});
+
+test('hasUniqueSolution is true for a puzzle with one solution', () => {
+  const board = parseSudoku(PUZZLE_TEXT);
+  assert.equal(hasUniqueSolution(board), true);
+});
+
+test('hasUniqueSolution is true for an already-solved board', () => {
+  const board = parseSudoku(SOLUTION_ROWS.join('\n'));
+  assert.equal(hasUniqueSolution(board), true);
+});
+
+test('countSolutions returns 0 for an unsolvable board', () => {
+  const board = parseSudoku(UNSOLVABLE_TEXT);
+  assert.equal(countSolutions(board), 0);
+});
+
+test('countSolutions stops at the limit instead of enumerating everything', () => {
+  const emptyBoardText = Array(9).fill('.........').join('\n');
+  const board = parseSudoku(emptyBoardText);
+  assert.equal(countSolutions(board, 2), 2);
+  assert.equal(hasUniqueSolution(board), false);
 });

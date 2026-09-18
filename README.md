@@ -116,6 +116,13 @@ if (solved) console.log(formatBoard(solved));
   conflict found (not just the first).
 - `solveSudoku(board: Board): Board | null` — solves the board by
   backtracking, or returns `null` if it has no solution.
+- `countSolutions(board: Board, limit = 2): number` — counts distinct
+  solutions, stopping as soon as `limit` is reached rather than
+  enumerating the whole search space.
+- `hasUniqueSolution(board: Board): boolean` — true if the board has
+  exactly one solution. Useful when generating puzzles: after removing a
+  clue, call this to check the puzzle is still solvable one way, not
+  several.
 - `formatBoard(board: Board): string` — renders a board back to the
   boxed text layout shown above.
 - `Board` — `{ cells: number[][], positions: CellPosition[][] }`, where
@@ -124,6 +131,6 @@ if (solved) console.log(formatBoard(solved));
 
 ## Status
 
-Parsing, constraint validation, and solving are done. Next up: a
-uniqueness checker (for puzzle generation) and support for alternate
-input formats.
+Parsing, constraint validation, solving, and a uniqueness checker (for
+puzzle generation) are done. Next up: support for alternate input
+formats.
